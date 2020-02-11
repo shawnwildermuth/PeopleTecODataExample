@@ -27,7 +27,7 @@ namespace Persontec.Api.Controllers
       {
         return _ctx.People.Where(c => c.City != "Atlanta");
       }
-
+      
       return _ctx.People;
     }
 

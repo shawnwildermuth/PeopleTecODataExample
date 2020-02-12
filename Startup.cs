@@ -19,6 +19,10 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 using Microsoft.AspNet.OData.Extensions;
 using Microsoft.OData.Edm;
 using Microsoft.AspNet.OData.Builder;
+using Microsoft.AspNet.OData.Formatter;
+using Microsoft.Net.Http.Headers;
+using System.IO;
+using Persontec.Api.ViewModels;
 
 namespace Persontec.Api
 {
@@ -44,15 +48,6 @@ namespace Persontec.Api
       
       //services.AddDbContext<MyContext>();
       services.AddDbContext<HrContext>();
-      services.AddControllers(opt =>
-      {
-        opt.EnableEndpointRouting = false;
-      })
-        .AddNewtonsoftJson(opt =>
-        {
-          opt.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
-        });
-
       services.AddSwaggerGen(opt =>
       {
         opt.SwaggerDoc("v1.0", new Microsoft.OpenApi.Models.OpenApiInfo()
@@ -60,8 +55,28 @@ namespace Persontec.Api
           Version = "v1.0",
           Title = "Hello World"
         });
+        var filePath = Path.Combine(AppContext.BaseDirectory, "Persontec.Api.xml");
+        opt.IncludeXmlComments(filePath);
       });
       services.AddOData();
+      services.AddControllers(opt =>
+      {
+        opt.EnableEndpointRouting = false;
+        // Workaround: https://github.com/OData/WebApi/issues/1177
+        foreach (var outputFormatter in opt.OutputFormatters.OfType<ODataOutputFormatter>().Where(_ => _.SupportedMediaTypes.Count == 0))
+        {
+          outputFormatter.SupportedMediaTypes.Add(new MediaTypeHeaderValue("application/prs.odatatestxx-odata"));
+        }
+        foreach (var inputFormatter in opt.InputFormatters.OfType<ODataInputFormatter>().Where(_ => _.SupportedMediaTypes.Count == 0))
+        {
+          inputFormatter.SupportedMediaTypes.Add(new MediaTypeHeaderValue("application/prs.odatatestxx-odata"));
+        }
+      })
+        .AddNewtonsoftJson(opt =>
+        {
+          opt.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+        });
+
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -85,8 +100,9 @@ namespace Persontec.Api
 
       app.UseMvc(opt =>
       {
-        opt.Select().Filter().OrderBy().Expand().Count();
+        opt.Select().Filter().OrderBy().Expand().Count().MaxTop(25);
         opt.MapODataServiceRoute("odata", "odata", MakeEDMModel());
+        opt.EnableDependencyInjection();
       });
 
       //app.UseEndpoints(endpoints =>

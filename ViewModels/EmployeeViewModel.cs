@@ -9,6 +9,7 @@ namespace Persontec.Api.ViewModels
 {
   public class EmployeeViewModel
   {
+    [Key]
     public int EmployeeId { get; set; } = -1;
     [Required]
     public string FirstName { get; set; }

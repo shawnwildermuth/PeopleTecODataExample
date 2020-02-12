@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Persontec.Api</name>
+    </assembly>
+    <members>
+        <member name="M:Persontec.Api.Controllers.EmployeesController.#ctor(Microsoft.Extensions.Logging.ILogger{Persontec.Api.Controllers.EmployeesController},Persontec.Api.Data.IHrRepository,AutoMapper.IMapper)">
+            <summary>
+            Employees Controller
+            </summary>
+            <param name="logger"></param>
+            <param name="repository"></param>
+            <param name="mapper"></param>
+        </member>
+        <member name="M:Persontec.Api.Controllers.EmployeesController.Get(System.Boolean)">
+            <summary>
+            Get all employees, sorted by employee number.
+            </summary>
+            <param name="includeOrgs">Option to include organization data in the result.</param>
+            <returns>Collection of <see cref="T:Persontec.Api.ViewModels.EmployeeViewModel"/></returns>
+        </member>
+    </members>
+</doc>

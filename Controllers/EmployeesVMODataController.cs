@@ -11,55 +11,31 @@ using System.Threading.Tasks;
 using System.Transactions;
 using Persontec.Api.ViewModels;
 using AutoMapper;
-using Microsoft.EntityFrameworkCore;
 
 namespace Persontec.Api.Controllers
 {
-  public class EmployeesODataController : ODataController
+  public class EmployeesVMODataController : ODataController
   {
     private readonly HrContext _ctx;
     private readonly IMapper _mapper;
 
-    public EmployeesODataController(HrContext ctx, IMapper mapper)
+    public EmployeesVMODataController(HrContext ctx, IMapper mapper)
     {
       _ctx = ctx;
       _mapper = mapper;
     }
 
-    [EnableQuery()]
-    public IQueryable<Employee> Get()
+    [EnableQuery(PageSize = 2)]
+    public IQueryable<EmployeeViewModel> Get()
     {
-      return _ctx.Employees;
+      return _ctx.Employees.ProjectTo<EmployeeViewModel>(_mapper.ConfigurationProvider);
     }
 
     [EnableQuery()]
-    public IQueryable<Employee> Get(int key)
+    public IQueryable<Employee> GetStartingEmployees()
     {
-      return _ctx.Employees.Where(c => c.EmployeeId == key);
+      return _ctx.Employees.Where(c => c.EmployeeNumber < 500);
     }
-
-    [EnableQuery]
-    public IQueryable<EmploymentPeriod> GetEmploymentPeriods(int key) 
-    {
-      return _ctx.Employees.Where(c => c.EmployeeId == key).SelectMany(p => p.EmploymentPeriods);
-    }
-
-    [EnableQuery]
-    public SingleResult<Organization> GetOrganization(int key)
-    {
-      var result = _ctx.Employees
-      //.Include(c => c.Organization)
-      .Where(c => c.EmployeeId == key)
-      .Select(p => p.Organization);
-
-      return SingleResult.Create(result);
-    }
-
-    //[EnableQuery()]
-    //public IQueryable<Employee> GetStartingEmployees()
-    //{
-    //  return _ctx.Employees.Where(c => c.EmployeeNumber < 500);
-    //}
 
 
     //[HttpGet]

@@ -20,6 +20,12 @@ namespace Persontec.Api.Controllers
     private readonly IHrRepository _repository;
     private readonly IMapper _mapper;
 
+    /// <summary>
+    /// Employees Controller
+    /// </summary>
+    /// <param name="logger"></param>
+    /// <param name="repository"></param>
+    /// <param name="mapper"></param>
     public EmployeesController(ILogger<EmployeesController> logger,
       IHrRepository repository,
       IMapper mapper)
@@ -36,6 +42,7 @@ namespace Persontec.Api.Controllers
     /// <returns>Collection of <see cref="EmployeeViewModel"/></returns>
     [HttpGet]
     [ProducesResponseType(typeof(IEnumerable<EmployeeViewModel>), 200)]
+    [Produces("application/json")]
     public async Task<ActionResult<IEnumerable<EmployeeViewModel>>> Get(bool includeOrgs = false)
     {
       var result = _mapper.Map<IEnumerable<EmployeeViewModel>>(
@@ -46,6 +53,7 @@ namespace Persontec.Api.Controllers
 
     [HttpGet("{id:int}", Name = "GetEmployee")]
     [ProducesResponseType(typeof(EmployeeViewModel), 200)]
+    [Produces("application/json")]
     public async Task<ActionResult<EmployeeViewModel>> Get(int id)
     {
       var employee = await _repository.GetEmployee(id);
@@ -58,6 +66,8 @@ namespace Persontec.Api.Controllers
     [ProducesResponseType(typeof(EmployeeViewModel), 201)]
     [ProducesResponseType(400)]
     [ProducesErrorResponseType(typeof(string))]
+    [Produces("application/json")]
+    [Consumes("application/json")]
     public async Task<ActionResult<EmployeeViewModel>> Post([FromBody] EmployeeViewModel model)
     {
       try
@@ -81,6 +91,8 @@ namespace Persontec.Api.Controllers
     }
 
     [HttpPut("{id:int}")]
+    [Produces("application/json")]
+    [Consumes("application/json")]
     public async Task<ActionResult<EmployeeViewModel>> Put(int id, [FromBody] EmployeeViewModel model)
     {
       try

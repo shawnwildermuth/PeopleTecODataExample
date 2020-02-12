@@ -9,6 +9,7 @@ namespace Persontec.Api.Data.Entities
 {
   public class Employee
   {
+    [Key]
     public int EmployeeId { get; set; }
     [Required]
     [MaxLength(255)]

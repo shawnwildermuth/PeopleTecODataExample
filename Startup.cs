@@ -1,9 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Newtonsoft.Json;
 using System.Threading.Tasks;
-using Microsoft.AspNet.OData.Builder;
-using Microsoft.AspNet.OData.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -12,9 +11,14 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.OData;
-using Microsoft.OData.Edm;
 using Persontec.Api.Data;
+using Persontec.Api.Data.Entities;
+using AutoMapper;
+using System.Reflection;
+using Swashbuckle.AspNetCore.SwaggerGen;
+using Microsoft.AspNet.OData.Extensions;
+using Microsoft.OData.Edm;
+using Microsoft.AspNet.OData.Builder;
 
 namespace Persontec.Api
 {
@@ -33,9 +37,30 @@ namespace Persontec.Api
       //services.AddIdentity()
       //  .AddJwtIdenty()
 
+      services.AddScoped<IHrRepository, HrRepository>();
+
+      services.AddAutoMapper(Assembly.GetExecutingAssembly());
+
+      
       //services.AddDbContext<MyContext>();
-      services.AddDbContext<PersonContext>();
-      services.AddMvc(opt => opt.EnableEndpointRouting = false);
+      services.AddDbContext<HrContext>();
+      services.AddControllers(opt =>
+      {
+        opt.EnableEndpointRouting = false;
+      })
+        .AddNewtonsoftJson(opt =>
+        {
+          opt.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+        });
+
+      services.AddSwaggerGen(opt =>
+      {
+        opt.SwaggerDoc("v1.0", new Microsoft.OpenApi.Models.OpenApiInfo()
+        {
+          Version = "v1.0",
+          Title = "Hello World"
+        });
+      });
       services.AddOData();
     }
 
@@ -50,11 +75,17 @@ namespace Persontec.Api
       app.UseHttpsRedirection();
 
       //app.UseRouting();
+      app.UseSwagger();
+      app.UseSwaggerUI(opt =>
+      {
+        opt.SwaggerEndpoint("/swagger/v1.0/swagger.json", "PeopleTec API");
+      });
 
       //app.UseAuthorization();
 
-      app.UseMvc(opt => {
-        opt.Select().Filter().Expand();
+      app.UseMvc(opt =>
+      {
+        opt.Select().Filter().OrderBy().Expand().Count();
         opt.MapODataServiceRoute("odata", "odata", MakeEDMModel());
       });
 
@@ -68,7 +99,8 @@ namespace Persontec.Api
     private IEdmModel MakeEDMModel()
     {
       var odataBuilder = new ODataConventionModelBuilder();
-      odataBuilder.EntitySet<Person>("People");
+      odataBuilder.EntitySet<Employee>("EmployeesOData");
+      //var opt = odataBuilder.EntitySet<Employee>("Employees");
 
       return odataBuilder.GetEdmModel();
     }

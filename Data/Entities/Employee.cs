@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -21,7 +22,13 @@ namespace Persontec.Api.Data.Entities
     public int EmployeeNumber { get; set; }
 
     public ICollection<EmploymentPeriod> EmploymentPeriods { get; set; }
-    public Employee Supervisor { get; set; }
-    public Organization Organization { get; set; }
+    
+    public virtual Organization Organization { get; set; }
+    public int OrganizationId { get; set; }
+
+    [ForeignKey("SupervisorId")]
+    public ICollection<Employee> DirectReports { get; set; }
+
+    public ICollection<Transfer> Transfers { get; set; }
   }
 }

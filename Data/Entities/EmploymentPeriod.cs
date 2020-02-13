@@ -8,7 +8,7 @@ namespace Persontec.Api.Data.Entities
     public int EmploymentPeriodId { get; set; }
     [Required]
     public DateTime StartingDate { get; set; }
-    public DateTime EndingDate { get; set; }
+    public DateTime? EndingDate { get; set; }
     [Required]
     [MaxLength(50)]
     public string Status { get; set; }

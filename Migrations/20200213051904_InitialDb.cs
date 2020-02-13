@@ -16,14 +16,15 @@ namespace Persontec.Api.Migrations
                     FirstName = table.Column<string>(maxLength: 255, nullable: false),
                     LastName = table.Column<string>(maxLength: 255, nullable: false),
                     EmployeeNumber = table.Column<int>(nullable: false),
-                    SupervisorEmployeeId = table.Column<int>(nullable: true)
+                    OrganizationId = table.Column<int>(nullable: false),
+                    SupervisorId = table.Column<int>(nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Employees", x => x.EmployeeId);
                     table.ForeignKey(
-                        name: "FK_Employees_Employees_SupervisorEmployeeId",
-                        column: x => x.SupervisorEmployeeId,
+                        name: "FK_Employees_Employees_SupervisorId",
+                        column: x => x.SupervisorId,
                         principalTable: "Employees",
                         principalColumn: "EmployeeId",
                         onDelete: ReferentialAction.Restrict);
@@ -55,27 +56,67 @@ namespace Persontec.Api.Migrations
                 name: "Organizations",
                 columns: table => new
                 {
-                    OrganizationId = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    OrganizationId = table.Column<int>(nullable: false),
                     OrganizationName = table.Column<string>(maxLength: 255, nullable: false),
                     OrganizationCode = table.Column<int>(nullable: false),
-                    VicePresidentId = table.Column<int>(nullable: false)
+                    VicePresidentEmployeeId = table.Column<int>(nullable: true),
+                    VicePresidentId = table.Column<int>(nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Organizations", x => x.OrganizationId);
                     table.ForeignKey(
-                        name: "FK_Organizations_Employees_VicePresidentId",
-                        column: x => x.VicePresidentId,
+                        name: "FK_Organizations_Employees_OrganizationId",
+                        column: x => x.OrganizationId,
+                        principalTable: "Employees",
+                        principalColumn: "EmployeeId");
+                    table.ForeignKey(
+                        name: "FK_Organizations_Employees_VicePresidentEmployeeId",
+                        column: x => x.VicePresidentEmployeeId,
                         principalTable: "Employees",
                         principalColumn: "EmployeeId",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
-            migrationBuilder.CreateIndex(
-                name: "IX_Employees_SupervisorEmployeeId",
+            migrationBuilder.InsertData(
                 table: "Employees",
-                column: "SupervisorEmployeeId");
+                columns: new[] { "EmployeeId", "EmployeeNumber", "FirstName", "LastName", "OrganizationId", "SupervisorId" },
+                values: new object[] { 1, 101, "Dennis", "Dunaway", 1, null });
+
+            migrationBuilder.InsertData(
+                table: "Employees",
+                columns: new[] { "EmployeeId", "EmployeeNumber", "FirstName", "LastName", "OrganizationId", "SupervisorId" },
+                values: new object[] { 2, 115, "James", "Smith", 1, 1 });
+
+            migrationBuilder.InsertData(
+                table: "EmploymentPeriod",
+                columns: new[] { "EmploymentPeriodId", "EmployeeId", "EndingDate", "StartingDate", "Status" },
+                values: new object[] { 1, 1, new DateTime(2020, 2, 13, 0, 0, 0, 0, DateTimeKind.Unspecified), new DateTime(2015, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), "Active" });
+
+            migrationBuilder.InsertData(
+                table: "Organizations",
+                columns: new[] { "OrganizationId", "OrganizationCode", "OrganizationName", "VicePresidentEmployeeId", "VicePresidentId" },
+                values: new object[] { 1, 12345, "Group J", null, 1 });
+
+            migrationBuilder.InsertData(
+                table: "Employees",
+                columns: new[] { "EmployeeId", "EmployeeNumber", "FirstName", "LastName", "OrganizationId", "SupervisorId" },
+                values: new object[] { 3, 1016, "Jake ", "Dwight", 1, 2 });
+
+            migrationBuilder.InsertData(
+                table: "Employees",
+                columns: new[] { "EmployeeId", "EmployeeNumber", "FirstName", "LastName", "OrganizationId", "SupervisorId" },
+                values: new object[] { 4, 1010, "Tim", "Tunney", 1, 2 });
+
+            migrationBuilder.InsertData(
+                table: "Employees",
+                columns: new[] { "EmployeeId", "EmployeeNumber", "FirstName", "LastName", "OrganizationId", "SupervisorId" },
+                values: new object[] { 5, 102, "Alec", "Smart", 1, 4 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Employees_SupervisorId",
+                table: "Employees",
+                column: "SupervisorId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_EmploymentPeriod_EmployeeId",
@@ -83,10 +124,9 @@ namespace Persontec.Api.Migrations
                 column: "EmployeeId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Organizations_VicePresidentId",
+                name: "IX_Organizations_VicePresidentEmployeeId",
                 table: "Organizations",
-                column: "VicePresidentId",
-                unique: true);
+                column: "VicePresidentEmployeeId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

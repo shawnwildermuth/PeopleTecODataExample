@@ -23,6 +23,7 @@ using Microsoft.AspNet.OData.Formatter;
 using Microsoft.Net.Http.Headers;
 using System.IO;
 using Persontec.Api.ViewModels;
+using Persontec.Api.Attributes;
 
 namespace Persontec.Api
 {
@@ -55,8 +56,8 @@ namespace Persontec.Api
           Version = "v1.0",
           Title = "Hello World"
         });
-        var filePath = Path.Combine(AppContext.BaseDirectory, "Persontec.Api.xml");
-        opt.IncludeXmlComments(filePath);
+        //var filePath = Path.Combine(AppContext.BaseDirectory, "Persontec.Api.xml");
+        //opt.IncludeXmlComments(filePath);
       });
       services.AddOData();
       services.AddControllers(opt =>
@@ -71,6 +72,8 @@ namespace Persontec.Api
         {
           inputFormatter.SupportedMediaTypes.Add(new MediaTypeHeaderValue("application/prs.odatatestxx-odata"));
         }
+
+        //opt.Filters.Add(new CustomAuthorizationFilter());
       })
         .AddNewtonsoftJson(opt =>
         {
@@ -114,11 +117,18 @@ namespace Persontec.Api
 
     private IEdmModel MakeEDMModel()
     {
-      var odataBuilder = new ODataConventionModelBuilder();
-      odataBuilder.EntitySet<Employee>("EmployeesOData");
-      //var opt = odataBuilder.EntitySet<Employee>("Employees");
+      var bldr = new ODataConventionModelBuilder();
+      bldr.EntitySet<Employee>("EmployeesOData");
+      bldr.EntitySet<Transfer>("TransfersOData");
 
-      return odataBuilder.GetEdmModel();
+      //var func = bldr.Function("GetAllReports");
+      var func = bldr.EntityType<Employee>().Collection.Function("GetAllReports");
+      func.Parameter<int>("EmployeeNumber");
+      func.ReturnsCollectionFromEntitySet<Employee>("EmployeesOData");
+
+      bldr.
+
+      return bldr.GetEdmModel();
     }
   }
 }

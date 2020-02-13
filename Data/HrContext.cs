@@ -20,6 +20,7 @@ namespace Persontec.Api.Data
 
     public DbSet<Employee> Employees { get; set; }
     public DbSet<Organization> Organizations { get; set; }
+    public DbSet<Transfer> Transfers { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder bldr)
     {
@@ -36,7 +37,8 @@ namespace Persontec.Api.Data
 
       bldr.Entity<Organization>()
         .HasData(
-        new Organization {
+        new
+        {
           OrganizationId = 1,
           OrganizationName = "Group J",
           OrganizationCode = 12345,
@@ -44,13 +46,52 @@ namespace Persontec.Api.Data
         });
 
       bldr.Entity<Employee>()
-        .HasData(new Employee()
+        .HasOne(e => e.Organization)
+        .WithOne()
+        .HasForeignKey<Organization>(o => o.OrganizationId)
+        .OnDelete(DeleteBehavior.NoAction)
+        .IsRequired(false);
+
+      bldr.Entity<Employee>()
+        .HasData(new
         {
           EmployeeId = 1,
           FirstName = "Dennis",
           LastName = "Dunaway",
-          Supervisor = null,
-          EmployeeNumber = 101
+          EmployeeNumber = 101,
+          OrganizationId = 1
+        }, new
+        {
+          EmployeeId = 2,
+          FirstName = "James",
+          LastName = "Smith",
+          EmployeeNumber = 115,
+          OrganizationId = 1,
+          SupervisorId = 1
+        }, new
+        {
+          EmployeeId = 3,
+          FirstName = "Jake ",
+          LastName = "Dwight",
+          EmployeeNumber = 1016,
+          OrganizationId = 1,
+          SupervisorId = 2
+        }, new
+        {
+          EmployeeId = 4,
+          FirstName = "Tim",
+          LastName = "Tunney",
+          EmployeeNumber = 1010,
+          OrganizationId = 1,
+          SupervisorId = 2
+        }, new
+        {
+          EmployeeId = 5,
+          FirstName = "Alec",
+          LastName = "Smart",
+          EmployeeNumber = 102,
+          OrganizationId = 1,
+          SupervisorId = 4
         });
 
       bldr.Entity<EmploymentPeriod>()
@@ -62,6 +103,23 @@ namespace Persontec.Api.Data
          Status = "Active",
          EmployeeId = 1
        });
+
+      bldr.Entity<Transfer>()
+        .HasData(new
+        {
+          TransferId = 1,
+          EmployeeId = 1,
+          StartingDate = DateTime.Parse("2015-01-01"),
+          EndingDate = DateTime.Parse("2020-02-13"),
+          CurrentOrganizationId = 1
+        }, new
+        {
+          TransferId = 2,
+          EmployeeId = 1,
+          StartingDate = DateTime.Parse("2011-01-01"),
+          EndingDate = DateTime.Parse("2014-12-31"),
+          CurrentOrganizationId = 1
+        });
     }
 
   }

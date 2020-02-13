@@ -39,12 +39,15 @@ namespace Persontec.Api.Migrations
                         .HasColumnType("nvarchar(255)")
                         .HasMaxLength(255);
 
-                    b.Property<int?>("SupervisorEmployeeId")
+                    b.Property<int>("OrganizationId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("SupervisorId")
                         .HasColumnType("int");
 
                     b.HasKey("EmployeeId");
 
-                    b.HasIndex("SupervisorEmployeeId");
+                    b.HasIndex("SupervisorId");
 
                     b.ToTable("Employees");
 
@@ -54,7 +57,44 @@ namespace Persontec.Api.Migrations
                             EmployeeId = 1,
                             EmployeeNumber = 101,
                             FirstName = "Dennis",
-                            LastName = "Dunaway"
+                            LastName = "Dunaway",
+                            OrganizationId = 1
+                        },
+                        new
+                        {
+                            EmployeeId = 2,
+                            EmployeeNumber = 115,
+                            FirstName = "James",
+                            LastName = "Smith",
+                            OrganizationId = 1,
+                            SupervisorId = 1
+                        },
+                        new
+                        {
+                            EmployeeId = 3,
+                            EmployeeNumber = 1016,
+                            FirstName = "Jake ",
+                            LastName = "Dwight",
+                            OrganizationId = 1,
+                            SupervisorId = 2
+                        },
+                        new
+                        {
+                            EmployeeId = 4,
+                            EmployeeNumber = 1010,
+                            FirstName = "Tim",
+                            LastName = "Tunney",
+                            OrganizationId = 1,
+                            SupervisorId = 2
+                        },
+                        new
+                        {
+                            EmployeeId = 5,
+                            EmployeeNumber = 102,
+                            FirstName = "Alec",
+                            LastName = "Smart",
+                            OrganizationId = 1,
+                            SupervisorId = 4
                         });
                 });
 
@@ -68,7 +108,7 @@ namespace Persontec.Api.Migrations
                     b.Property<int?>("EmployeeId")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("EndingDate")
+                    b.Property<DateTime?>("EndingDate")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime>("StartingDate")
@@ -99,9 +139,7 @@ namespace Persontec.Api.Migrations
             modelBuilder.Entity("Persontec.Api.Data.Entities.Organization", b =>
                 {
                     b.Property<int>("OrganizationId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("int");
 
                     b.Property<int>("OrganizationCode")
                         .HasColumnType("int");
@@ -111,13 +149,15 @@ namespace Persontec.Api.Migrations
                         .HasColumnType("nvarchar(255)")
                         .HasMaxLength(255);
 
-                    b.Property<int>("VicePresidentId")
+                    b.Property<int?>("VicePresidentEmployeeId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("VicePresidentId")
                         .HasColumnType("int");
 
                     b.HasKey("OrganizationId");
 
-                    b.HasIndex("VicePresidentId")
-                        .IsUnique();
+                    b.HasIndex("VicePresidentEmployeeId");
 
                     b.ToTable("Organizations");
 
@@ -131,11 +171,55 @@ namespace Persontec.Api.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Persontec.Api.Data.Entities.Transfer", b =>
+                {
+                    b.Property<int>("TransferId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int?>("CurrentOrganizationOrganizationId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("EmployeeId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("EndingDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("StartingDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("TransferId");
+
+                    b.HasIndex("CurrentOrganizationOrganizationId");
+
+                    b.HasIndex("EmployeeId");
+
+                    b.ToTable("Transfers");
+
+                    b.HasData(
+                        new
+                        {
+                            TransferId = 1,
+                            EmployeeId = 1,
+                            EndingDate = new DateTime(2020, 2, 13, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            StartingDate = new DateTime(2015, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                        },
+                        new
+                        {
+                            TransferId = 2,
+                            EmployeeId = 1,
+                            EndingDate = new DateTime(2014, 12, 31, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            StartingDate = new DateTime(2011, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified)
+                        });
+                });
+
             modelBuilder.Entity("Persontec.Api.Data.Entities.Employee", b =>
                 {
-                    b.HasOne("Persontec.Api.Data.Entities.Employee", "Supervisor")
-                        .WithMany()
-                        .HasForeignKey("SupervisorEmployeeId");
+                    b.HasOne("Persontec.Api.Data.Entities.Employee", null)
+                        .WithMany("DirectReports")
+                        .HasForeignKey("SupervisorId");
                 });
 
             modelBuilder.Entity("Persontec.Api.Data.Entities.EmploymentPeriod", b =>
@@ -147,11 +231,25 @@ namespace Persontec.Api.Migrations
 
             modelBuilder.Entity("Persontec.Api.Data.Entities.Organization", b =>
                 {
-                    b.HasOne("Persontec.Api.Data.Entities.Employee", "VicePresident")
+                    b.HasOne("Persontec.Api.Data.Entities.Employee", null)
                         .WithOne("Organization")
-                        .HasForeignKey("Persontec.Api.Data.Entities.Organization", "VicePresidentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("Persontec.Api.Data.Entities.Organization", "OrganizationId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.HasOne("Persontec.Api.Data.Entities.Employee", "VicePresident")
+                        .WithMany()
+                        .HasForeignKey("VicePresidentEmployeeId");
+                });
+
+            modelBuilder.Entity("Persontec.Api.Data.Entities.Transfer", b =>
+                {
+                    b.HasOne("Persontec.Api.Data.Entities.Organization", "CurrentOrganization")
+                        .WithMany()
+                        .HasForeignKey("CurrentOrganizationOrganizationId");
+
+                    b.HasOne("Persontec.Api.Data.Entities.Employee", "Employee")
+                        .WithMany("Transfers")
+                        .HasForeignKey("EmployeeId");
                 });
 #pragma warning restore 612, 618
         }

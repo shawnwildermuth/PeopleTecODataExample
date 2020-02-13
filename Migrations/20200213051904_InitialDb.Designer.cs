@@ -10,7 +10,7 @@ using Persontec.Api.Data;
 namespace Persontec.Api.Migrations
 {
     [DbContext(typeof(HrContext))]
-    [Migration("20200212153946_InitialDb")]
+    [Migration("20200213051904_InitialDb")]
     partial class InitialDb
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -41,14 +41,63 @@ namespace Persontec.Api.Migrations
                         .HasColumnType("nvarchar(255)")
                         .HasMaxLength(255);
 
-                    b.Property<int?>("SupervisorEmployeeId")
+                    b.Property<int>("OrganizationId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("SupervisorId")
                         .HasColumnType("int");
 
                     b.HasKey("EmployeeId");
 
-                    b.HasIndex("SupervisorEmployeeId");
+                    b.HasIndex("SupervisorId");
 
                     b.ToTable("Employees");
+
+                    b.HasData(
+                        new
+                        {
+                            EmployeeId = 1,
+                            EmployeeNumber = 101,
+                            FirstName = "Dennis",
+                            LastName = "Dunaway",
+                            OrganizationId = 1
+                        },
+                        new
+                        {
+                            EmployeeId = 2,
+                            EmployeeNumber = 115,
+                            FirstName = "James",
+                            LastName = "Smith",
+                            OrganizationId = 1,
+                            SupervisorId = 1
+                        },
+                        new
+                        {
+                            EmployeeId = 3,
+                            EmployeeNumber = 1016,
+                            FirstName = "Jake ",
+                            LastName = "Dwight",
+                            OrganizationId = 1,
+                            SupervisorId = 2
+                        },
+                        new
+                        {
+                            EmployeeId = 4,
+                            EmployeeNumber = 1010,
+                            FirstName = "Tim",
+                            LastName = "Tunney",
+                            OrganizationId = 1,
+                            SupervisorId = 2
+                        },
+                        new
+                        {
+                            EmployeeId = 5,
+                            EmployeeNumber = 102,
+                            FirstName = "Alec",
+                            LastName = "Smart",
+                            OrganizationId = 1,
+                            SupervisorId = 4
+                        });
                 });
 
             modelBuilder.Entity("Persontec.Api.Data.Entities.EmploymentPeriod", b =>
@@ -77,14 +126,22 @@ namespace Persontec.Api.Migrations
                     b.HasIndex("EmployeeId");
 
                     b.ToTable("EmploymentPeriod");
+
+                    b.HasData(
+                        new
+                        {
+                            EmploymentPeriodId = 1,
+                            EmployeeId = 1,
+                            EndingDate = new DateTime(2020, 2, 13, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            StartingDate = new DateTime(2015, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = "Active"
+                        });
                 });
 
             modelBuilder.Entity("Persontec.Api.Data.Entities.Organization", b =>
                 {
                     b.Property<int>("OrganizationId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+                        .HasColumnType("int");
 
                     b.Property<int>("OrganizationCode")
                         .HasColumnType("int");
@@ -94,22 +151,33 @@ namespace Persontec.Api.Migrations
                         .HasColumnType("nvarchar(255)")
                         .HasMaxLength(255);
 
-                    b.Property<int>("VicePresidentId")
+                    b.Property<int?>("VicePresidentEmployeeId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("VicePresidentId")
                         .HasColumnType("int");
 
                     b.HasKey("OrganizationId");
 
-                    b.HasIndex("VicePresidentId")
-                        .IsUnique();
+                    b.HasIndex("VicePresidentEmployeeId");
 
                     b.ToTable("Organizations");
+
+                    b.HasData(
+                        new
+                        {
+                            OrganizationId = 1,
+                            OrganizationCode = 12345,
+                            OrganizationName = "Group J",
+                            VicePresidentId = 1
+                        });
                 });
 
             modelBuilder.Entity("Persontec.Api.Data.Entities.Employee", b =>
                 {
-                    b.HasOne("Persontec.Api.Data.Entities.Employee", "Supervisor")
-                        .WithMany()
-                        .HasForeignKey("SupervisorEmployeeId");
+                    b.HasOne("Persontec.Api.Data.Entities.Employee", null)
+                        .WithMany("DirectReports")
+                        .HasForeignKey("SupervisorId");
                 });
 
             modelBuilder.Entity("Persontec.Api.Data.Entities.EmploymentPeriod", b =>
@@ -121,11 +189,14 @@ namespace Persontec.Api.Migrations
 
             modelBuilder.Entity("Persontec.Api.Data.Entities.Organization", b =>
                 {
-                    b.HasOne("Persontec.Api.Data.Entities.Employee", "VicePresident")
+                    b.HasOne("Persontec.Api.Data.Entities.Employee", null)
                         .WithOne("Organization")
-                        .HasForeignKey("Persontec.Api.Data.Entities.Organization", "VicePresidentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("Persontec.Api.Data.Entities.Organization", "OrganizationId")
+                        .OnDelete(DeleteBehavior.NoAction);
+
+                    b.HasOne("Persontec.Api.Data.Entities.Employee", "VicePresident")
+                        .WithMany()
+                        .HasForeignKey("VicePresidentEmployeeId");
                 });
 #pragma warning restore 612, 618
         }

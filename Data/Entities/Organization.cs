@@ -13,9 +13,6 @@ namespace Persontec.Api.Data.Entities
     public int OrganizationCode { get; set; }
 
     public Employee VicePresident { get; set; }
-    [ForeignKey("vice_president_id")]
-    public int VicePresidentId { get; set; }
-
-
+    public int? VicePresidentId { get; set; }
   }
 }

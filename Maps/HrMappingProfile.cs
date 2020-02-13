@@ -20,6 +20,8 @@ namespace Persontec.Api.Maps
           o => o.MapFrom(s => s.Organization.OrganizationCode))
         .ReverseMap()
         .ForMember(c => c.Organization, o => o.Ignore());
+
+
     }
   }
 }

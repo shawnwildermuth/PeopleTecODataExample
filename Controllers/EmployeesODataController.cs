@@ -1,17 +1,16 @@
-﻿using Microsoft.AspNet.OData;
+﻿using AutoMapper;
+using Microsoft.AspNet.OData;
+using Microsoft.AspNet.OData.Query;
+using Microsoft.AspNet.OData.Routing;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Persontec.Api.Attributes;
 using Persontec.Api.Data;
 using Persontec.Api.Data.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using AutoMapper.QueryableExtensions;
-using System.Text;
 using System.Threading.Tasks;
-using System.Transactions;
-using Persontec.Api.ViewModels;
-using AutoMapper;
-using Microsoft.EntityFrameworkCore;
 
 namespace Persontec.Api.Controllers
 {
@@ -20,39 +19,104 @@ namespace Persontec.Api.Controllers
     private readonly HrContext _ctx;
     private readonly IMapper _mapper;
 
-    public EmployeesODataController(HrContext ctx, IMapper mapper)
+    public EmployeesODataController(HrContext ctx,
+    IMapper mapper)
     {
       _ctx = ctx;
       _mapper = mapper;
     }
 
-    [EnableQuery()]
-    public IQueryable<Employee> Get()
+    [SecureEnableQuery(MaxExpansionDepth = 3)]
+    public IQueryable<Employee> Get(ODataQueryOptions opt)
     {
-      return _ctx.Employees;
+      IQueryable<Employee> qry = _ctx.Employees;
+
+      if (true) // User's is in VP's heiarchy
+      {
+        qry = qry.Where(c => c.EmployeeNumber < 1000);
+      }
+
+      return qry;
     }
 
-    [EnableQuery()]
+    [EnableQuery(MaxExpansionDepth = 3)]
     public IQueryable<Employee> Get(int key)
     {
-      return _ctx.Employees.Where(c => c.EmployeeId == key);
+      var qry = _ctx.Employees.Where(c => c.EmployeeId == key);
+
+      if (key == 1)
+      {
+        qry = qry.Select(c => _mapper.Map<Employee, Employee>(c)
+        //new Employee()
+        //{
+        //  EmployeeId = c.EmployeeId,
+        //  EmployeeNumber = c.EmployeeNumber,
+        //  EmploymentPeriods = c.EmploymentPeriods,
+        //  FirstName = c.FirstName,
+        //  LastName = "YOUR NOT ALLOWED",
+        //  DirectReports = c.DirectReports,
+        //  Organization = c.Organization,
+        //  Transfers = c.Transfers,
+        //  OrganizationId = c.OrganizationId
+        //}
+        );
+      }
+      return qry;
     }
 
-    [EnableQuery]
-    public IQueryable<EmploymentPeriod> GetEmploymentPeriods(int key) 
+    [EnableQuery(MaxExpansionDepth = 3)]
+    public IQueryable<EmploymentPeriod> GetEmploymentPeriods(int key)
     {
       return _ctx.Employees.Where(c => c.EmployeeId == key).SelectMany(p => p.EmploymentPeriods);
     }
 
-    [EnableQuery]
+    [EnableQuery(MaxExpansionDepth = 3)]
+    public IQueryable<Transfer> GetTransfers(int key)
+    {
+      return _ctx.Employees.Where(c => c.EmployeeId == key).SelectMany(p => p.Transfers);
+    }
+
+    [EnableQuery(MaxExpansionDepth = 3)]
     public SingleResult<Organization> GetOrganization(int key)
     {
       var result = _ctx.Employees
-      //.Include(c => c.Organization)
+      .Include(c => c.Organization)
+      .ThenInclude(o => o.VicePresident)
       .Where(c => c.EmployeeId == key)
       .Select(p => p.Organization);
 
       return SingleResult.Create(result);
+    }
+
+    [EnableQuery]
+    [ODataRoute("EmployeesOData/GetAllReports(EmployeeNumber={employeeNumber})")]
+    public async Task<ActionResult<IEnumerable<Employee>>>
+      GetAllReports(int employeeNumber)
+    {
+      var employee = await _ctx.Employees
+        .Where(e => e.EmployeeNumber == employeeNumber)
+        .FirstOrDefaultAsync();
+
+      var reports = new List<Employee>();
+      await GetDirectReports(employee, reports);
+
+      return reports;
+    }
+
+    private async Task GetDirectReports(Employee employee, List<Employee> reports)
+    {
+      var results = await _ctx.Employees
+        .Include(c => c.DirectReports)
+        .Where(c => c.EmployeeId == employee.EmployeeId)
+        .SelectMany(s => s.DirectReports)
+        .ToListAsync();
+
+      reports.AddRange(results);
+
+      foreach (var report in results)
+      {
+        await GetDirectReports(report, reports);
+      }
     }
 
     //[EnableQuery()]

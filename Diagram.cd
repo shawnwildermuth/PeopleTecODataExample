@@ -1,0 +1,103 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="Persontec.Api.Data.Entities.Employee">
+    <Position X="5.25" Y="0.5" Width="2.25" />
+    <AssociationLine Name="DirectReports" Type="Persontec.Api.Data.Entities.Employee" ManuallyRouted="true">
+      <Path>
+        <Point X="6.048" Y="2.373" />
+        <Point X="6.048" Y="3.304" />
+        <Point X="6.718" Y="3.304" />
+        <Point X="6.718" Y="2.373" />
+      </Path>
+    </AssociationLine>
+    <AssociationLine Name="Organization" Type="Persontec.Api.Data.Entities.Organization" ManuallyRouted="true">
+      <Path>
+        <Point X="5.25" Y="1.535" />
+        <Point X="2.75" Y="1.535" />
+      </Path>
+    </AssociationLine>
+    <AssociationLine Name="EmploymentPeriods" Type="Persontec.Api.Data.Entities.EmploymentPeriod" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="7.5" Y="1.25" />
+        <Point X="9" Y="1.25" />
+        <Point X="9" Y="2" />
+      </Path>
+      <MemberNameLabel ManuallyPlaced="true">
+        <Position X="-0.086" Y="0.881" />
+      </MemberNameLabel>
+    </AssociationLine>
+    <AssociationLine Name="Transfers" Type="Persontec.Api.Data.Entities.Transfer" ManuallyRouted="true" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="5.25" Y="2.188" />
+        <Point X="5.126" Y="2.188" />
+        <Point X="5.126" Y="3.188" />
+        <Point X="4.5" Y="3.188" />
+      </Path>
+      <MemberNameLabel ManuallyPlaced="true">
+        <Position X="0.11" Y="-0.367" />
+      </MemberNameLabel>
+    </AssociationLine>
+    <TypeIdentifier>
+      <HashCode>AAAAAEAAQAAAAAAAAAAAAQQAAQAAAAAAAAAAAAACIAg=</HashCode>
+      <FileName>Data\Entities\Employee.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="Organization" />
+    </ShowAsAssociation>
+    <ShowAsCollectionAssociation>
+      <Property Name="DirectReports" />
+      <Property Name="EmploymentPeriods" />
+      <Property Name="Transfers" />
+    </ShowAsCollectionAssociation>
+  </Class>
+  <Class Name="Persontec.Api.Data.Entities.EmploymentPeriod">
+    <Position X="8" Y="2" Width="2" />
+    <TypeIdentifier>
+      <HashCode>EAAAAAAEAAAAAAAAAAAAAAAAACAAAAAAAAAAAIAAAAA=</HashCode>
+      <FileName>Data\Entities\EmploymentPeriod.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Persontec.Api.Data.Entities.Organization">
+    <Position X="0.5" Y="0.5" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAgAAAAAIAAAAAAAAAAAAAAAQAAQAAAAAAAAAAAQAA=</HashCode>
+      <FileName>Data\Entities\Organization.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="VicePresident" />
+    </ShowAsAssociation>
+  </Class>
+  <Class Name="Persontec.Api.Data.Entities.Transfer">
+    <Position X="3" Y="2.25" Width="1.5" />
+    <AssociationLine Name="CurrentOrganization" Type="Persontec.Api.Data.Entities.Organization" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="3.75" Y="2.25" />
+        <Point X="3.75" Y="1.875" />
+        <Point X="2.75" Y="1.875" />
+      </Path>
+      <MemberNameLabel ManuallyPlaced="true" ManuallySized="true">
+        <Position X="0.11" Y="0.06" Height="0.182" Width="1.485" />
+      </MemberNameLabel>
+    </AssociationLine>
+    <AssociationLine Name="Employee" Type="Persontec.Api.Data.Entities.Employee" ManuallyRouted="true" FixedFromPoint="true" FixedToPoint="true">
+      <Path>
+        <Point X="4.5" Y="2.78" />
+        <Point X="4.875" Y="2.78" />
+        <Point X="4.875" Y="1.875" />
+        <Point X="5.25" Y="1.875" />
+      </Path>
+      <MemberNameLabel ManuallyPlaced="true">
+        <Position X="-0.088" Y="0.081" />
+      </MemberNameLabel>
+    </AssociationLine>
+    <TypeIdentifier>
+      <HashCode>EAAAAAAAAAAAAAAAABAAAAAACAAAAAAAAAAAEIAAAAA=</HashCode>
+      <FileName>Data\Entities\Transfers.cs</FileName>
+    </TypeIdentifier>
+    <ShowAsAssociation>
+      <Property Name="CurrentOrganization" />
+      <Property Name="Employee" />
+    </ShowAsAssociation>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

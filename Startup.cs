@@ -126,7 +126,6 @@ namespace Persontec.Api
       func.Parameter<int>("EmployeeNumber");
       func.ReturnsCollectionFromEntitySet<Employee>("EmployeesOData");
 
-      bldr.
 
       return bldr.GetEdmModel();
     }
